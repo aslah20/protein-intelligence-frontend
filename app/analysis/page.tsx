@@ -79,15 +79,15 @@ export default function AnalysisPage() {
       let endpoint = ""
 
       if (selectedTask === 1) {
-        endpoint = "http://127.0.0.1:8000/predict/binding/"
+        endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/binding/`
       } else if (selectedTask === 2) {
-        endpoint = "http://127.0.0.1:8000/predict/localization/"
+        endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/localization/`
       } else if (selectedTask === 7) {
-        endpoint = "http://127.0.0.1:8000/predict/immunogenicity/"
+        endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/immunogenicity/`
       } else if (selectedTask === 4) {
-        endpoint = "http://127.0.0.1:8000/predict/stability/"
+        endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/stability/`
       } else if (selectedTask === 3) {
-        endpoint = "http://127.0.0.1:8000/predict/ptm/"
+        endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/ptm/`
       } else {
         alert("This task is not implemented yet")
         setIsAnalyzing(false)
