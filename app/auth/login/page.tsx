@@ -20,7 +20,7 @@ export default function LoginPage() {
       const { data, error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/protein-wiki`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
