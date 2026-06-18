@@ -88,6 +88,8 @@ export default function AnalysisPage() {
         endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/stability/`
       } else if (selectedTask === 3) {
         endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/ptm/`
+      } else if (selectedTask === 5) {
+        endpoint = `${process.env.NEXT_PUBLIC_API_URL}/predict/glycosylation/`     
       } else {
         alert("This task is not implemented yet")
         setIsAnalyzing(false)
@@ -182,6 +184,25 @@ export default function AnalysisPage() {
           confidence = 0 // not needed
         }
 
+        // 🔥 TASK 5: GLYCOSYLATION
+        else if (selectedTask === 5) {
+
+          formattedPrediction =
+            item.glyco ? "Glycosylated" : "No Glycosylation"
+
+          details = {
+            "Glycosylation": item.glyco ? "YES" : "NO",
+            "Sites Count": `${item.glyco_sites_count}`,
+            "Positions":
+              item.glyco_positions
+                ?.map((p:any) => `${p.position} (${p.type})`)
+                .join(", ")
+              || "None"
+          }
+
+          confidence = 0
+        }
+
         return {
           name: `Protein_${index + 1}`,
           sequence: item.sequence.slice(0, 50),
@@ -258,6 +279,28 @@ export default function AnalysisPage() {
           .map((r) => [
             r.sequence,
             r.result
+          ].join(","))
+          .join("\n")
+      }
+
+      // 🔥 TASK 5: GLYCOSYLATION
+      else if (selectedTask === 5) {
+
+        const headers = [
+          "Sequence",
+          "Glycosylation",
+          "Sites Count",
+          "Positions"
+        ]
+
+        content = headers.join(",") + "\n"
+
+        content += results
+          .map((r) => [
+            r.sequence,
+            r.details["Glycosylation"],
+            r.details["Sites Count"],
+            `"${r.details["Positions"]}"`
           ].join(","))
           .join("\n")
       }
