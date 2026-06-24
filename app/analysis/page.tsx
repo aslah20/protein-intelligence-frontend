@@ -269,6 +269,30 @@ export default function AnalysisPage() {
           .join("\n")
       }
 
+      // 🔥 TASK 3: PTM
+      else if (selectedTask === 3) {
+
+        const headers = [
+          "Sequence",
+          "PTM",
+          "PTM Sites Count",
+          "Positions",
+          "PTM Ratio (%)"
+        ]
+
+        content = headers.join(",") + "\n"
+
+        content += results
+          .map((r) => [
+            r.sequence,
+            r.details["PTM"],
+            r.details["PTM Sites"],
+            `"${r.details["Positions"]}"`,
+            r.details["PTM Ratio"]
+          ].join(","))
+          .join("\n")
+      }
+
       // 🔥 TASK 4: STABILITY
       else if (selectedTask === 4) {
         const headers = ["Sequence", "Stability Score"]
@@ -319,8 +343,19 @@ export default function AnalysisPage() {
           .join("\n")
       }
 
-      filename = "analysis_results.csv"
-
+      let filename = "analysis_results.csv"
+      if (selectedTask === 1)
+        filename = "binding_results.csv"
+      else if (selectedTask === 2)
+        filename = "localization_results.csv"
+      else if (selectedTask === 3)
+        filename = "ptm_results.csv"
+      else if (selectedTask === 4)
+        filename = "stability_results.csv"
+      else if (selectedTask === 5)
+        filename = "glycosylation_results.csv"
+      else if (selectedTask === 7)
+        filename = "immunogenicity_results.csv"
     } else {
       content = JSON.stringify(results, null, 2)
       filename = "analysis_results.json"
