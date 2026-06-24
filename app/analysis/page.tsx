@@ -343,7 +343,7 @@ export default function AnalysisPage() {
           .join("\n")
       }
 
-      let filename = "analysis_results.csv"
+      filename = "analysis_results.csv"
       if (selectedTask === 1)
         filename = "binding_results.csv"
       else if (selectedTask === 2)
