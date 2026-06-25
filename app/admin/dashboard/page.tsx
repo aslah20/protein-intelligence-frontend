@@ -62,6 +62,8 @@ export default function AdminDashboard() {
   const [resourceTitle, setResourceTitle] = useState('')
   const [resourceDescription, setResourceDescription] = useState('')
   const [resourceFile, setResourceFile] = useState<File | null>(null)
+  const [resourceType, setResourceType] = useState<"upload" | "link">("upload")
+  const [resourceLink, setResourceLink] = useState("")
   const [uploadingResource, setUploadingResource] = useState(false)
 
   const supabase = createClient()
@@ -334,27 +336,37 @@ export default function AdminDashboard() {
       let fileUrl = null
       let fileName = null
 
-      // Upload file if provided
-      if (resourceFile) {
-        const fileExt = resourceFile.name.split('.').pop()
-        fileName = `resource-${user?.id}-${Date.now()}.${fileExt}`
-        
-        console.log('[v0] Uploading file:', fileName)
-        const { error: uploadError } = await supabase.storage
-          .from('research-submissions')
-          .upload(`submissions/${fileName}`, resourceFile)
+      // Upload file OR use external link
+      if (resourceType === "upload") {
 
-        if (uploadError) {
-          console.error('[v0] File upload error:', uploadError)
-          throw uploadError
+        if (resourceFile) {
+
+          const fileExt = resourceFile.name.split(".").pop()
+
+          fileName = `resource-${user?.id}-${Date.now()}.${fileExt}`
+
+          const { error: uploadError } =
+            await supabase.storage
+            .from("research-submissions")
+            .upload(`submissions/${fileName}`, resourceFile)
+
+          if (uploadError) throw uploadError
+
+          const {
+            data: { publicUrl },
+          } = supabase.storage
+            .from("research-submissions")
+            .getPublicUrl(`submissions/${fileName}`)
+
+          fileUrl = publicUrl
+
         }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('research-submissions')
-          .getPublicUrl(`submissions/${fileName}`)
-        
-        fileUrl = publicUrl
-        console.log('[v0] File uploaded:', fileUrl)
+      } else {
+
+        fileUrl = resourceLink
+        fileName = "External Resource"
+
       }
 
       console.log('[v0] Creating resource in published_content')
@@ -707,6 +719,35 @@ export default function AdminDashboard() {
               </div>
 
               <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Resource Type
+                </label>
+
+                <div className="flex gap-6">
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={resourceType === "upload"}
+                      onChange={() => setResourceType("upload")}
+                    />
+                    Upload File
+                  </label>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      checked={resourceType === "link"}
+                      onChange={() => setResourceType("link")}
+                    />
+                    External Link
+                  </label>
+
+                </div>
+              </div>
+
+              {resourceType === "upload" && (
+              <div>
                 <label className="block text-sm font-semibold mb-2">File (Optional)</label>
                 <label className="block border-2 border-dashed border-border/50 rounded-lg p-4 text-center hover:border-accent/50 hover:bg-accent/10 transition cursor-pointer">
                   <Upload className="w-6 h-6 text-foreground/50 mx-auto mb-2" />
@@ -721,6 +762,27 @@ export default function AdminDashboard() {
                   />
                 </label>
               </div>
+              )}
+
+              {resourceType === "link" && (
+
+              <div>
+
+              <label className="block text-sm font-semibold mb-2">
+              Google Drive / Dropbox / OneDrive Link
+              </label>
+
+              <input
+                  type="url"
+                  value={resourceLink}
+                  onChange={(e)=>setResourceLink(e.target.value)}
+                  placeholder="https://drive.google.com/file/d/..."
+                  className="w-full px-4 py-2 rounded-lg bg-background/50 border border-border/50"
+              />
+
+              </div>
+
+              )}
 
               <div className="flex gap-3 pt-4">
                 <button
